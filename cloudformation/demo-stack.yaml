@@ -14,8 +14,8 @@ Resources:
       BucketName: !Ref BucketName
       ServiceToken: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cfn-reclaim-provider-function'
 
-  # Repository:
-  #   Type: Custom::ReclaimECRRepository
-  #   Properties:
-  #     RepositoryName: !Ref RepositoryName
-  #     ServiceToken: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cfn-reclaim-provider-function'
+  Repository:
+    Type: Custom::ReclaimECRRepository
+    Properties:
+      RepositoryName: !Ref RepositoryName
+      ServiceToken: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cfn-reclaim-provider-function'

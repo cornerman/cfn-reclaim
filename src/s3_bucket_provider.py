@@ -7,6 +7,7 @@ import json
 import logging
 from botocore.exceptions import ClientError
 from cfn_resource_provider import ResourceProvider
+import provider_helper
 
 logger = logging.getLogger()
 
@@ -32,14 +33,14 @@ class ReclaimS3BucketProvider(ResourceProvider):
             self.physical_resource_id = "failed-to-crate"
 
     def create_bucket(self):
-        region = os.environ['AWS_REGION']
+        region = provider_helper.get_region(self.context)
         bucket_name = self.properties['BucketName']
-        bucket_arn = "arn:aws:s3:::" + bucket_name
-        print('Creating ' + bucket_name + ' in region ' + region)
+        bucket_arn = "arn:aws:s3:::{}".format(bucket_name)
+        print('Creating bucket' + bucket_name)
 
         s3 = boto3.client("s3", region_name=region)
         if self.bucket_exists(s3, bucket_name):
-          print('Bucket already exists')
+          print('Bucket already exists, will reclaim')
           self.physical_resource_id = bucket_arn
           self.success()
         else:
@@ -82,8 +83,8 @@ class ReclaimS3BucketProvider(ResourceProvider):
         try:
             print("Deleting s3-bucket: " + self.physical_resource_id)
             region = self.properties.get("Region")
-            acm = boto3.client("s3", region_name=region)
-            response = acm.delete_bucket(Bucket = self.properties["BucketName"])
+            s3 = boto3.client("s3", region_name=region)
+            response = s3.delete_bucket(Bucket = self.properties["BucketName"])
         except ClientError as error:
           self.success("Cannot delete bucket, will retain it: {}".format(error))
 
