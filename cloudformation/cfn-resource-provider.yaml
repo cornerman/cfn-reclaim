@@ -1,0 +1,57 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Custom Cloudformation Reclaim Provider to reclaim existing resources.
+Parameters:
+  S3BucketName:
+    Type: String
+  S3Key:
+    Type: String
+    Default: 'lambdas/cfn-reclaim-provider-0.1.0.zip'
+
+Resources:
+  LambdaPolicy:
+    Type: AWS::IAM::Policy
+    DependsOn:
+      - LambdaRole
+    Properties:
+      PolicyName: cfn-reclaim-provider-policy
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: # TODO reduce..
+              - s3:*
+              - ecr:*
+            Resource:
+            - '*'
+      Roles:
+        - !Ref LambdaRole
+
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  CustomProvider:
+    Type: AWS::Lambda::Function
+    DependsOn:
+      - LambdaRole
+    Properties:
+      Description: Custom Cloudformation Reclaim Provider
+      FunctionName: cfn-reclaim-provider-function
+      Handler: provider.handler
+      Role: !GetAtt 'LambdaRole.Arn'
+      Runtime: python3.6
+      Code:
+        S3Bucket: !Ref S3BucketName
+        S3Key: !Ref S3Key

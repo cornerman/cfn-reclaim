@@ -1,0 +1,2 @@
+boto3
+cfn-resource-provider

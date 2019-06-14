@@ -1,0 +1,21 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Demo Reclaim Provider for S3 Bucket and ECR Repository
+Parameters:
+  BucketName:
+    Type: String
+  RepositoryName:
+    Type: String
+
+Resources:
+  Bucket:
+    Type: Custom::ReclaimS3Bucket
+    Properties:
+      BucketName: !Ref BucketName
+      ServiceToken: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cfn-reclaim-provider-function'
+
+  # Repository:
+  #   Type: Custom::ReclaimECRRepository
+  #   Properties:
+  #     RepositoryName: !Ref RepositoryName
+  #     ServiceToken: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cfn-reclaim-provider-function'
