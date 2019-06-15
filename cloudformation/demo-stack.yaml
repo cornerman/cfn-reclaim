@@ -51,3 +51,33 @@ Resources:
     Properties:
       RepositoryName: !Ref RepositoryName
       ServiceToken: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cfn-reclaim-provider-function'
+
+  RepositoryPolicy1:
+    Type: Custom::ReclaimECRRepositoryPolicyStatement
+    DependsOn:
+      - Repository
+    Properties:
+      Repository: !Ref RepositoryName
+      PolicyStatement:
+        Sid: "repository-policy-1"
+        Effect: "Allow"
+        Action:
+          - "ecr:BatchGetImage"
+        Principal:
+          AWS: "*"
+      ServiceToken: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cfn-reclaim-provider-function'
+
+  RepositoryPolicy2:
+    Type: Custom::ReclaimECRRepositoryPolicyStatement
+    DependsOn:
+      - Repository
+    Properties:
+      Repository: !Ref RepositoryName
+      PolicyStatement:
+        Sid: "repository-policy-2"
+        Effect: "Allow"
+        Action:
+          - "ecr:GetAuthorizationToken"
+        Principal:
+          AWS: "*"
+      ServiceToken: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cfn-reclaim-provider-function'

@@ -6,9 +6,10 @@ The goal of this project is to allow managing/claiming existing resources within
 
 The following resources are available
 
-- [Custom::ReclaimECRRepository](docs/ReclaimECRRepository.md)
 - [Custom::ReclaimS3Bucket](docs/ReclaimS3Bucket.md)
 - [Custom::ReclaimS3BucketPolicyStatement](docs/ReclaimS3BucketPolicyStatement.md)
+- [Custom::ReclaimECRRepository](docs/ReclaimECRRepository.md)
+- [Custom::ReclaimECRReositoryPolicyStatement](docs/ReclaimS3BucketPolicyStatement.md)
 
 Checkout the example in [cloudformation/demo-stack.yaml](cloudformation/demo-stack.yaml).
 

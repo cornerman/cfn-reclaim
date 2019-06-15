@@ -2,6 +2,7 @@ import logging
 import s3_bucket_provider
 import s3_bucket_policy_statement_provider
 import ecr_repository_provider
+import ecr_repository_policy_statement_provider
 from os import getenv
 
 logging.basicConfig(level=getenv("LOG_LEVEL", "INFO"))
@@ -17,5 +18,7 @@ def handler(request, context):
         return s3_bucket_policy_statement_provider.handler(request, context)
     elif resource_type == "Custom::ReclaimECRRepository":
         return ecr_repository_provider.handler(request, context)
+    elif resource_type == "Custom::ReclaimECRRepositoryPolicyStatement":
+        return ecr_repository_policy_statement_provider.handler(request, context)
     else:
         raise Exception("Unknown resource name: " + request["ResourceType"])

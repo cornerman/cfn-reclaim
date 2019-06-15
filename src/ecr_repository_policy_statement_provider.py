@@ -12,64 +12,69 @@ import provider_helper
 logger = logging.getLogger()
 
 
-class ReclaimS3BucketPolicyStatementProvider(ResourceProvider):
+class ReclaimECRRepositoryPolicyStatementProvider(ResourceProvider):
 
     def __init__(self):
-        super(ReclaimS3BucketPolicyStatementProvider, self).__init__()
+        super(ReclaimECRRepositoryPolicyStatementProvider, self).__init__()
         self.request_schema = {
             "type": "object",
-            "required": ["Bucket", "PolicyStatement"],
+            "required": ["Repository", "PolicyStatement"],
             "additionalProperties": True,
             "properties": {
-                "Bucket": {"type": "string", "description": "to create"},
+                "Repository": {"type": "string", "description": "to create"},
                 "PolicyStatement": { "type": "object", "properties": { "Sid": { "type": "string" } } }
             }
         }
 
     def create(self):
         try:
-            self.replace_bucket_policy(replace_sid = None, add_statement = True)
+            self.replaceRepositoryPolicy(replace_sid = None, add_statement = True)
         except ClientError as error:
             self.fail("{}".format(error))
             self.physical_resource_id = "failed-to-crate"
 
-    def replace_bucket_policy(self, replace_sid, add_statement):
+    def replaceRepositoryPolicy(self, replace_sid, add_statement):
+        account_id = provider_helper.get_account_id(self.context)
         region = provider_helper.get_region(self.context)
-        bucket_name = self.properties['Bucket']
-        bucket_arn = "arn:aws:s3:::{}".format(bucket_name)
-        print('Replacing policy on bucket ' + bucket_name)
+        repository_name = self.properties['Repository']
+        repository_arn = "arn:aws:ecr:{}:{}:{}".format(account_id, region, repository_name )
+        print('Replacing policy on repository ' + repository_name)
 
         policy_statement = self.properties['PolicyStatement']
         sid = policy_statement['Sid']
-        s3 = boto3.client("s3", region_name=region)
+        ecr = boto3.client("ecr", region_name=region)
         try:
-            policy_document = self.get_bucket_policy(s3, bucket_name)
+            policy_document = self.get_repository_policy(ecr, repository_name, account_id)
             kept_statements = [st for st in policy_document['Statement'] if st['Sid'] != sid and st['Sid'] != replace_sid]
             if add_statement:
                 kept_statements.append(policy_statement)
+
             if kept_statements:
                 policy_document['Statement'] = kept_statements
-                s3.put_bucket_policy(
-                    Bucket = bucket_name,
-                    Policy = json.dumps(policy_document)
+                ecr.set_repository_policy(
+                    registryId = account_id,
+                    repositoryName = repository_name,
+                    policyText = json.dumps(policy_document)
                 )
             else:
-                s3.delete_bucket_policy(
-                    Bucket = bucket_name
+                ecr.delete_repository_policy(
+                    registryId = account_id,
+                    repositoryName = repository_name
                 )
 
-            self.physical_resource_id = bucket_arn
+            self.physical_resource_id = repository_arn
             self.success()
         except ClientError as error:
             self.fail("{}".format(error))
 
-    def get_bucket_policy(self, s3, bucket_name):
+    def get_repository_policy(self, ecr, repository_name, account_id):
         try:
-            policy_result = s3.get_bucket_policy(Bucket = bucket_name)
-            policy_document_str = policy_result["Policy"]
+            policy_result = ecr.get_repository_policy(repositoryName = repository_name)
+            policy_document_str = policy_result["policyText"]
             return json.loads(policy_document_str)
         except ClientError as error:
-            if error.response["Error"]["Message"] == "The bucket policy does not exist":
+            print(error.response["Error"]["Message"])
+            if error.response["Error"]["Message"] == "Repository policy does not exist for the repository with name '{}' in the registry with id '{}'".format(repository_name, account_id):
                 return self.new_policy_document()
             else:
                 raise
@@ -82,22 +87,22 @@ class ReclaimS3BucketPolicyStatementProvider(ResourceProvider):
         }
 
     def update(self):
-        # TODO: handle update of bucket
+        # TODO: handle update of repository
         policy_statement = self.old_properties['PolicyStatement']
         sid = policy_statement['Sid']
         try:
-            self.replace_bucket_policy(replace_sid = sid, add_statement = True)
+            self.replaceRepositoryPolicy(replace_sid = sid, add_statement = True)
         except ClientError as error:
             self.fail("{}".format(error))
 
     def delete(self):
         try:
-            self.replace_bucket_policy(replace_sid = None, add_statement = False)
+            self.replaceRepositoryPolicy(replace_sid = None, add_statement = False)
         except ClientError as error:
             self.success("Cannot delete bucket policy statement, will retain it: {}".format(error))
 
 
-provider = ReclaimS3BucketPolicyStatementProvider()
+provider = ReclaimECRRepositoryPolicyStatementProvider()
 
 def handler(request, context):
     return provider.handle(request, context)

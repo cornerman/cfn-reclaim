@@ -36,8 +36,8 @@ class ReclaimECRRepository(ResourceProvider):
         account_id = provider_helper.get_account_id(self.context)
         region = provider_helper.get_region(self.context)
         repository_name = self.properties['RepositoryName']
-        print('Creating ecr repository ' + repository_name)
         repository_arn = "arn:aws:ecr:{}:{}:{}".format(account_id, region, repository_name )
+        print('Creating ecr repository ' + repository_name)
 
         ecr = boto3.client("ecr", region_name=region)
         try:

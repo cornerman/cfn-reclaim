@@ -11,7 +11,7 @@ statement to the existing statements.
 To declare this entity in your AWS CloudFormation template, use the following syntax:
 
 ```yaml
-  Bucket:
+  BucketPolicy:
     Type: Custom::ReclaimS3BucketPolicyStatement
     Properties:
       Bucket: !Ref BucketName

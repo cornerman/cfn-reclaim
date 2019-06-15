@@ -9,7 +9,7 @@ failing the update.
 To declare this entity in your AWS CloudFormation template, use the following syntax:
 
 ```yaml
-  Bucket:
+  Repository:
     Type: Custom::ReclaimECRRepository
     Properties:
       RepositoryName: !Ref RepositoryName
