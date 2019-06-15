@@ -36,7 +36,7 @@ class ReclaimS3BucketProvider(ResourceProvider):
         region = provider_helper.get_region(self.context)
         bucket_name = self.properties['BucketName']
         bucket_arn = "arn:aws:s3:::{}".format(bucket_name)
-        print('Creating bucket' + bucket_name)
+        print('Creating bucket ' + bucket_name)
 
         s3 = boto3.client("s3", region_name=region)
         if self.bucket_exists(s3, bucket_name):
@@ -59,14 +59,14 @@ class ReclaimS3BucketProvider(ResourceProvider):
             s3.create_bucket(**arguments)
             self.physical_resource_id = bucket_arn
             self.success()
-          except ClientError:
+          except ClientError as error:
             self.fail("{}".format(error))
 
     def bucket_exists(self, s3, bucket_name):
         try:
             s3.head_bucket(Bucket=bucket_name)
-        except ClientError as exp:
-            if exp.response["Error"]["Message"] == "Not Found":
+        except ClientError as error:
+            if error.response["Error"]["Message"] == "Not Found":
                 return False
             else:
                 raise

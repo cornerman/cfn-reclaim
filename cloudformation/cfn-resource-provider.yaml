@@ -52,6 +52,7 @@ Resources:
       Handler: provider.handler
       Role: !GetAtt 'LambdaRole.Arn'
       Runtime: python3.6
+      ReservedConcurrentExecutions: 1
       Code:
         S3Bucket: !Ref S3BucketName
         S3Key: !Ref S3Key

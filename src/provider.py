@@ -1,5 +1,6 @@
 import logging
 import s3_bucket_provider
+import s3_bucket_policy_statement_provider
 import ecr_repository_provider
 from os import getenv
 
@@ -12,6 +13,8 @@ def handler(request, context):
     print("Got Custom Resource: " + resource_type)
     if resource_type == "Custom::ReclaimS3Bucket":
         return s3_bucket_provider.handler(request, context)
+    elif resource_type == "Custom::ReclaimS3BucketPolicyStatement":
+        return s3_bucket_policy_statement_provider.handler(request, context)
     elif resource_type == "Custom::ReclaimECRRepository":
         return ecr_repository_provider.handler(request, context)
     else:

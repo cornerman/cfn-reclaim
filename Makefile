@@ -55,10 +55,10 @@ delete-provider:
 demo: deploy-provider
 	aws --region $(AWS_REGION) cloudformation deploy \
                 --capabilities CAPABILITY_IAM \
-                --stack-name $(NAME)-demo2 \
+                --stack-name $(NAME)-demo \
                 --template-file cloudformation/demo-stack.yaml \
                 --parameter-overrides BucketName=$(NAME)-demo-bucket RepositoryName=$(NAME)-demo-repository || true
 
 delete-demo:
-	aws --region $(AWS_REGION) cloudformation delete-stack --stack-name $(NAME)-demo2
+	aws --region $(AWS_REGION) cloudformation delete-stack --stack-name $(NAME)-demo
 

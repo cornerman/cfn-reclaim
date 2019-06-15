@@ -1,7 +1,14 @@
 # Claim existing resources in Cloudformation
 
+**Work in Progress:** Currently not all properties of the resources are supported.
+
+The goal of this project is to allow managing/claiming existing resources within a cloudformation stack.
+
+The following resources are available
+
+- [Custom::ReclaimECRRepository](docs/ReclaimECRRepository.md)
 - [Custom::ReclaimS3Bucket](docs/ReclaimS3Bucket.md)
-- [Custom::ReclaimECRRepository](docs/ReclaimS3Bucket.md)
+- [Custom::ReclaimS3BucketPolicyStatement](docs/ReclaimS3BucketPolicyStatement.md)
 
 Checkout the example in [cloudformation/demo-stack.yaml](cloudformation/demo-stack.yaml).
 
